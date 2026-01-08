@@ -1,18 +1,18 @@
 // 1. MASTER DATA
 const startingInventory = [
-  { name: "R23mm", size: "23mm", quantity: 23, cost: 6000 },
-  { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 6500 },
-  { name: "Oval 5237mm", size: "5237mm", quantity: 27, cost: 6500 },
-  { name: "Rectanglw 1580mm", size: "1580mm", quantity: 20, cost: 6000 },
-  { name: "Rectangle 2278mm", size: "2278mm", quantity: 5, cost: 6500 },
-  { name: "Rectangle 3363mm", size: "33x63mm", quantity: 24, cost: 6500 },
-  { name: "Manual PAID/ RECEIVED", size: "P/R", quantity: 18, cost: 9000 },
-  { name: "Rectangle 80100mm", size: "80x100mm", quantity: 49, cost: 15000 },
-  { name: "Rectangle 6090mm", size: "60x90mm", quantity: 12, cost: 12000 },
-  { name: "Wax Stamp", size: "20mm", quantity: 49, cost: 8000 },
-  { name: "Fabric Ink", size: "10ml", quantity: 50, cost: 5000 },
-  { name: "Nylon Ink", size: "10ml", quantity: 50, cost: 5000 },
-  { name: "Paper Ink", size: "10ml", quantity: 50, cost: 3000 }
+  { name: "R23mm", size: "23mm", quantity: 23, cost: 2000 },
+  { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 2000 },
+  { name: "Oval 5237mm", size: "5237mm", quantity: 27, cost: 2000 },
+  { name: "Rectanglw 1580mm", size: "1580mm", quantity: 20, cost: 2000 },
+  { name: "Rectangle 2278mm", size: "2278mm", quantity: 5, cost: 2000 },
+  { name: "Rectangle 3363mm", size: "33x63mm", quantity: 24, cost: 2000 },
+  { name: "Manual PAID/ RECEIVED", size: "P/R", quantity: 18, cost: 1200 },
+  { name: "Rectangle 80100mm", size: "80x100mm", quantity: 49, cost: 3000 },
+  { name: "Rectangle 6090mm", size: "60x90mm", quantity: 12, cost: 3000 },
+  { name: "Wax Stamp", size: "20mm", quantity: 49, cost: 2500 },
+  { name: "Fabric Ink", size: "10ml", quantity: 50, cost: 500 },
+  { name: "Nylon Ink", size: "10ml", quantity: 50, cost: 500 },
+  { name: "Paper Ink", size: "10ml", quantity: 50, cost: 500 }
 ];
 
 // 2. DATA PERSISTENCE (THE FIX)
