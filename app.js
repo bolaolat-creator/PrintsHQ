@@ -1,4 +1,4 @@
-// 1. EXACT INVENTORY DATA
+// 1. EXACT INVENTORY DATA (FROM YOUR LIST)
 const inventory = [
   { name: "R23mm", size: "23mm", quantity: 23, cost: 6000 },
   { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 6500 },
@@ -35,7 +35,6 @@ function init() {
     stampType.appendChild(option);
   });
 
-  // Default date and time
   document.getElementById("date").valueAsDate = new Date();
   document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
 
@@ -45,7 +44,6 @@ function init() {
 
 // 3. CATEGORY SWITCHING
 category.addEventListener("change", () => {
-  // We treat Stamps and Ink as "Inventory Items"
   if (category.value === "Stamp") {
     stampSection.style.display = "block";
     otherSection.style.display = "none";
@@ -105,16 +103,93 @@ document.getElementById("salesForm").addEventListener("submit", async (e) => {
       mode: "no-cors", 
       body: JSON.stringify(record)
     });
-    console.log("Success: Synced with Cloud");
   } catch (err) {
-    console.log("Sync delayed, saved locally.");
+    console.log("Sheet sync delayed.");
   }
 
   e.target.reset();
   init(); 
 });
 
-// 5. HELPER FUNCTIONS
+// 5. DASHBOARD & FILTERING
+function updateDashboard(data = sales) {
+  let s = 0, p = 0;
+  data.forEach(sale => { s += sale.priceCharged; p += sale.profit; });
+  document.getElementById("totalSales").textContent = s.toLocaleString();
+  document.getElementById("totalProfit").textContent = p.toLocaleString();
+  document.getElementById("totalOrders").textContent = data.length;
+}
+
+function filterByDate() {
+  const d = document.getElementById("filterDate").value;
+  if (!d) return;
+  const filtered = sales.filter(s => s.date === d);
+  updateDashboard(filtered);
+}
+
+function clearFilter() {
+  updateDashboard(sales);
+}
+
+// 6. MONTHLY SUMMARY LOGIC
+function monthlySummary() {
+  const month = document.getElementById("monthPicker").value;
+  if (!month) return alert("Please select a month");
+  
+  const filtered = sales.filter(s => s.date.startsWith(month));
+  let mSales = 0, mProfit = 0;
+  
+  filtered.forEach(f => { 
+    mSales += f.priceCharged; 
+    mProfit += f.profit; 
+  });
+  
+  document.getElementById("monthlySales").textContent = mSales.toLocaleString();
+  document.getElementById("monthlyProfit").textContent = mProfit.toLocaleString();
+}
+
+// 7. PRINTABLE PDF LOGIC
+function printDailyReport() {
+  const date = document.getElementById("printDate").value;
+  if (!date) return alert("Select a date to print");
+  
+  const filtered = sales.filter(s => s.date === date);
+  if (filtered.length === 0) return alert("No sales found for this date");
+
+  let rows = filtered.map(s => `
+    <tr>
+      <td style="padding:8px; border:1px solid #ddd;">${s.client}</td>
+      <td style="padding:8px; border:1px solid #ddd;">${s.product}</td>
+      <td style="padding:8px; border:1px solid #ddd;">₦${s.priceCharged.toLocaleString()}</td>
+      <td style="padding:8px; border:1px solid #ddd;">₦${s.profit.toLocaleString()}</td>
+    </tr>
+  `).join("");
+
+  const win = window.open("", "_blank");
+  win.document.write(`
+    <html>
+      <head><title>Report - ${date}</title></head>
+      <body style="font-family:sans-serif; padding:20px;">
+        <h2 style="text-align:center;">Daily Sales Report: ${date}</h2>
+        <table style="width:100%; border-collapse: collapse; margin-top:20px;">
+          <thead>
+            <tr style="background:#f2f2f2;">
+              <th style="padding:8px; border:1px solid #ddd;">Client</th>
+              <th style="padding:8px; border:1px solid #ddd;">Product</th>
+              <th style="padding:8px; border:1px solid #ddd;">Price</th>
+              <th style="padding:8px; border:1px solid #ddd;">Profit</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </body>
+    </html>
+  `);
+  win.document.close();
+  win.print();
+}
+
+// 8. INVENTORY UI
 function loadInventory() {
   const list = document.getElementById("inventoryList");
   list.innerHTML = "";
@@ -127,14 +202,6 @@ function loadInventory() {
     `;
     list.appendChild(li);
   });
-}
-
-function updateDashboard(data = sales) {
-  let s = 0, p = 0;
-  data.forEach(sale => { s += sale.priceCharged; p += sale.profit; });
-  document.getElementById("totalSales").textContent = s.toLocaleString();
-  document.getElementById("totalProfit").textContent = p.toLocaleString();
-  document.getElementById("totalOrders").textContent = data.length;
 }
 
 init();
