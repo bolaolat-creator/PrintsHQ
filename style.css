@@ -1,64 +1,156 @@
+/* 1. GENERAL STYLES */
 body {
-  font-family: 'Segoe UI', sans-serif;
-  padding: 20px;
-  background-color: #f0f2f5;
-  color: #333;
-  max-width: 600px;
-  margin: auto;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: #f0f2f5;
+    color: #1c1e21;
+    line-height: 1.5;
+    padding: 15px;
+    margin: 0;
 }
 
-section {
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+.container {
+    max-width: 500px;
+    margin: 0 auto;
 }
 
-h2 { color: #1a73e8; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-h3 { color: #5f6368; }
+/* 2. CARD COMPONENT */
+.card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+h2, h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.25rem;
+    color: #050505;
+}
+
+/* 3. FORM ELEMENTS */
+label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #65676b;
+    margin-bottom: 4px;
+    margin-top: 12px;
+}
 
 input, select, button {
-  display: block;
-  margin-bottom: 12px;
-  padding: 12px;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #dadce0;
-  font-size: 16px;
-  box-sizing: border-box;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    outline: none;
 }
 
+input:focus, select:focus {
+    border-color: #1877f2;
+    box-shadow: 0 0 0 2px #e7f3ff;
+}
+
+.row {
+    display: flex;
+    gap: 10px;
+}
+
+/* 4. BUTTON VARIATIONS */
 button {
-  background-color: #1a73e8;
-  color: white;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
+    cursor: pointer;
+    font-weight: 600;
+    border: none;
+    transition: background 0.2s;
 }
 
-button:hover { background-color: #1557b0; }
+.btn-save {
+    background-color: #28a745;
+    color: white;
+    margin-top: 15px;
+}
 
-button.secondary { background-color: #70757a; }
-button.export-btn { background-color: #188038; }
-button.print-btn { background-color: #f29900; }
+.btn-save:hover { background-color: #218838; }
 
-#inventoryList { padding: 0; }
+.btn-view { background-color: #6c757d; color: white; }
+
+.btn-print { background-color: #f39c12; color: white; }
+
+button.secondary {
+    background-color: #e4e6eb;
+    color: #050505;
+}
+
+/* 5. DASHBOARD STATS */
+.stat-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.stat-item {
+    background: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-item small {
+    display: block;
+    color: #65676b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.stat-item p {
+    margin: 5px 0 0 0;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1877f2;
+}
+
+/* 6. INVENTORY LIST & RESTOCK */
+#inventoryList {
+    padding: 0;
+    margin: 0;
+}
+
 #inventoryList li {
-  list-style: none;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
-  display: flex;
-  justify-content: space-between;
+    list-style: none;
+    padding: 12px 0;
+    border-bottom: 1px solid #ebedf0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#inventoryList li:last-child {
+    border-bottom: none;
 }
 
 .low-stock-alert {
-  color: #d93025;
-  font-weight: bold;
+    color: #d93025;
+    font-weight: bold;
 }
-body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; background: #f4f4f4; }
-form, h2, h3 { background: white; padding: 15px; border-radius: 8px; }
-input, select, button { display: block; width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
-button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
-.low-stock-alert { color: #d93025; font-weight: bold; }
-#inventoryList li { list-style: none; background: white; margin-bottom: 5px; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
+
+/* Tiny Restock Button */
+#inventoryList button {
+    width: auto;
+    padding: 6px 12px;
+    margin: 0;
+    font-size: 0.85rem;
+    background-color: #007bff;
+    color: white;
+}
+
+/* 7. PRINTING UTILITY */
+@media print {
+    .card:not(.print-area) {
+        display: none;
+    }
+}
