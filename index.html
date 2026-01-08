@@ -3,71 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrintsHQ Admin</title>
+    <title>PrintsHQ | Management System</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <h2>Daily Sales Entry</h2>
-        <form id="salesForm">
-            <input type="text" id="client" placeholder="Client Name" required>
-            <div class="row">
-                <input type="date" id="date" required>
-                <input type="time" id="time" required>
-            </div>
-            <select id="category" required>
-                <option value="">-- Select Category --</option>
-                <option value="Stamp">Inventory Item (Stamps/Ink)</option>
-                <option value="Other">Custom/Other Printing</option>
-            </select>
-            
-            <div id="stampSection" style="display:none;">
-                <label>Select Item:</label>
-                <select id="stampType"></select>
-            </div>
-            
-            <div id="otherSection" style="display:none;">
-                <input type="text" id="productName" placeholder="Product Name">
-                <input type="number" id="quantity" placeholder="Quantity">
-            </div>
+        <section class="card">
+            <h2>Daily Sales Entry</h2>
+            <form id="salesForm">
+                <input type="text" id="client" placeholder="Client Name" required>
+                
+                <div class="row">
+                    <input type="date" id="date" required>
+                    <input type="time" id="time" required>
+                </div>
 
-            <input type="number" id="priceCharged" placeholder="Price Charged (₦)" required>
-            <input type="number" id="productCost" placeholder="Cost (Auto-fills for Stamps)">
-            
-            <button type="submit">Complete Sale</button>
-        </form>
+                <select id="category" required>
+                    <option value="">-- Select Category --</option>
+                    <option value="Stamp">Inventory Item (Stamps/Ink)</option>
+                    <option value="Other">Custom/Other Printing</option>
+                </select>
+                
+                <div id="stampSection" style="display:none;">
+                    <label>Select Product:</label>
+                    <select id="stampType"></select>
+                </div>
+                
+                <div id="otherSection" style="display:none;">
+                    <input type="text" id="productName" placeholder="Product Name">
+                </div>
 
-        <section class="stats">
+                <label>Quantity Sold:</label>
+                <input type="number" id="quantitySold" value="1" min="1" required>
+
+                <label>Total Price Charged (₦):</label>
+                <input type="number" id="priceCharged" placeholder="Enter total amount" required>
+                
+                <label>Cost Price (Per Unit):</label>
+                <input type="number" id="productCost" placeholder="Auto-fills for Stamps">
+                
+                <button type="submit" class="btn-save">Complete Sale</button>
+            </form>
+        </section>
+
+        <section class="card stats">
             <h3>Daily Dashboard</h3>
             <div class="filter-group">
                 <input type="date" id="filterDate">
-                <button onclick="filterByDate()">Filter</button>
-                <button onclick="clearFilter()" class="secondary">Reset</button>
+                <div class="row">
+                    <button onclick="filterByDate()">Filter</button>
+                    <button onclick="clearFilter()" class="secondary">Reset</button>
+                </div>
             </div>
-            <p>Sales: ₦<span id="totalSales">0</span></p>
-            <p>Profit: ₦<span id="totalProfit">0</span></p>
-            <p>Orders: <span id="totalOrders">0</span></p>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <small>Total Sales</small>
+                    <p>₦<span id="totalSales">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <small>Total Profit</small>
+                    <p>₦<span id="totalProfit">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <small>Orders</small>
+                    <p id="totalOrders">0</p>
+                </div>
+            </div>
         </section>
 
-        <section class="monthly-report">
+        <section class="card monthly-report">
             <h3>Monthly Summary</h3>
             <input type="month" id="monthPicker">
-            <button onclick="monthlySummary()" style="background:#6c757d;">View Monthly Report</button>
-            <p>Monthly Sales: ₦<span id="monthlySales">0</span></p>
-            <p>Monthly Profit: ₦<span id="monthlyProfit">0</span></p>
+            <button onclick="monthlySummary()" class="btn-view">View Monthly Report</button>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <small>Monthly Sales</small>
+                    <p>₦<span id="monthlySales">0</span></p>
+                </div>
+                <div class="stat-item">
+                    <small>Monthly Profit</small>
+                    <p>₦<span id="monthlyProfit">0</span></p>
+                </div>
+            </div>
         </section>
 
-        <section class="print-area">
+        <section class="card print-area">
             <h3>Generate Daily PDF</h3>
             <input type="date" id="printDate">
-            <button onclick="printDailyReport()" style="background:#f39c12;">Print Report</button>
+            <button onclick="printDailyReport()" class="btn-print">Print Report</button>
         </section>
 
-        <div class="inventory">
-            <h3>Stock Levels</h3>
+        <section class="card inventory">
+            <h3>Stock Levels & Restock</h3>
             <ul id="inventoryList"></ul>
-        </div>
+        </section>
     </div>
+
     <script src="app.js"></script>
 </body>
 </html>
