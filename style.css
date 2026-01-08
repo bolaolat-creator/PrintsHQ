@@ -56,3 +56,9 @@ button.print-btn { background-color: #f29900; }
   color: #d93025;
   font-weight: bold;
 }
+body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; background: #f4f4f4; }
+form, h2, h3 { background: white; padding: 15px; border-radius: 8px; }
+input, select, button { display: block; width: 100%; margin-bottom: 10px; padding: 10px; box-sizing: border-box; }
+button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+.low-stock-alert { color: #d93025; font-weight: bold; }
+#inventoryList li { list-style: none; background: white; margin-bottom: 5px; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; }
