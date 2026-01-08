@@ -1,80 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PrintsHQ | Sales & Inventory</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrintsHQ System</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-  <section id="entry-section">
     <h2>Daily Sales Entry</h2>
     <form id="salesForm">
-      <input type="text" id="client" placeholder="Client name" required>
-      <input type="date" id="date" required>
-      <input type="time" id="time" required>
-
-      <select id="category" required>
-        <option value="">Select product type</option>
-        <option value="Stamp">Stamp</option>
-        <option value="Other">Other Print</option>
-      </select>
-
-      <div id="stampSection" style="display:none;">
-        <label>Select Stamp Type:</label>
-        <select id="stampType"></select>
-      </div>
-
-      <div id="otherSection" style="display:none;">
-        <input type="text" id="productName" placeholder="Product name">
-        <input type="number" id="quantity" placeholder="Quantity">
-      </div>
-
-      <input type="number" id="priceCharged" placeholder="Price charged (₦)" required>
-      <input type="number" id="productCost" placeholder="Product cost (₦)" required>
-
-      <button type="submit">Save Sale</button>
+        <input type="text" id="client" placeholder="Client Name" required>
+        <input type="date" id="date" required>
+        <input type="time" id="time" required>
+        <select id="category" required>
+            <option value="">Select Category</option>
+            <option value="Stamp">Stamp</option>
+            <option value="Other">Other Print</option>
+        </select>
+        <div id="stampSection" style="display:none;"><select id="stampType"></select></div>
+        <div id="otherSection" style="display:none;">
+            <input type="text" id="productName" placeholder="Product Name">
+            <input type="number" id="quantity" placeholder="Qty">
+        </div>
+        <input type="number" id="priceCharged" placeholder="Price Charged (₦)" required>
+        <input type="number" id="productCost" placeholder="Cost (Auto-fills for stamps)" required>
+        <button type="submit">Save Sale</button>
     </form>
-  </section>
 
-  <section id="dashboard-section">
-    <h2>Main Dashboard</h2>
-    <div class="filter-group">
-      <input type="date" id="filterDate">
-      <button onclick="filterByDate()">Filter by Date</button>
-      <button onclick="clearFilter()" class="secondary">Clear Filter</button>
-    </div>
-    <div id="dashboard">
-      <p>Total Sales: ₦<span id="totalSales">0</span></p>
-      <p>Total Profit: ₦<span id="totalProfit">0</span></p>
-      <p>Total Orders: <span id="totalOrders">0</span></p>
-    </div>
-    <button onclick="exportToExcel()" class="export-btn">Export All to Excel (CSV)</button>
-  </section>
+    <hr>
+    <h3>Dashboard</h3>
+    <p>Total Sales: ₦<span id="totalSales">0</span></p>
+    <p>Total Profit: ₦<span id="totalProfit">0</span></p>
+    <p>Total Orders: <span id="totalOrders">0</span></p>
 
-  <section id="monthly-section">
-    <h3>Monthly Summary</h3>
-    <input type="month" id="monthPicker">
-    <button onclick="monthlySummary()">View Monthly Report</button>
-    <div class="stats">
-      <p>Monthly Sales: ₦<span id="monthlySales">0</span></p>
-      <p>Monthly Profit: ₦<span id="monthlyProfit">0</span></p>
-      <p>Monthly Orders: <span id="monthlyOrders">0</span></p>
-    </div>
-  </section>
-
-  <section id="report-section">
-    <h3>Print Daily Report</h3>
-    <input type="date" id="printDate">
-    <button onclick="printDailyReport()" class="print-btn">Generate Printable PDF</button>
-  </section>
-
-  <section id="inventory-section">
-    <h2>Stamp Inventory</h2>
+    <hr>
+    <h3>Inventory Status</h3>
     <ul id="inventoryList"></ul>
-  </section>
 
-  <script src="app.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
