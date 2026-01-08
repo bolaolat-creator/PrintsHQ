@@ -1,4 +1,4 @@
-// 1. FULL DATA CAPTURE
+// 1. EXACT INVENTORY DATA
 const inventory = [
   { name: "R23mm", size: "23mm", quantity: 23, cost: 6000 },
   { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 6500 },
@@ -27,7 +27,7 @@ const stampType = document.getElementById("stampType");
 
 // 2. INITIALIZE PAGE
 function init() {
-  stampType.innerHTML = ""; // Clear existing
+  stampType.innerHTML = '<option value="">-- Select Product --</option>'; 
   inventory.forEach(item => {
     const option = document.createElement("option");
     option.value = item.name;
@@ -35,6 +35,7 @@ function init() {
     stampType.appendChild(option);
   });
 
+  // Default date and time
   document.getElementById("date").valueAsDate = new Date();
   document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
 
@@ -44,25 +45,39 @@ function init() {
 
 // 3. CATEGORY SWITCHING
 category.addEventListener("change", () => {
-  stampSection.style.display = category.value === "Stamp" ? "block" : "none";
-  otherSection.style.display = category.value === "Other" ? "block" : "none";
+  // We treat Stamps and Ink as "Inventory Items"
+  if (category.value === "Stamp") {
+    stampSection.style.display = "block";
+    otherSection.style.display = "none";
+  } else if (category.value === "Other") {
+    stampSection.style.display = "none";
+    otherSection.style.display = "block";
+  } else {
+    stampSection.style.display = "none";
+    otherSection.style.display = "none";
+  }
 });
 
-// 4. SAVE SALE & SYNC
+// 4. SAVE SALE & SYNC TO GOOGLE
 document.getElementById("salesForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const priceCharged = Number(document.getElementById("priceCharged").value);
-  let productCost = Number(document.getElementById("productCost").value);
-  let productName = document.getElementById("productName").value;
-  let qty = Number(document.getElementById("quantity").value) || 1;
+  let productCost = 0;
+  let productName = "";
+  let qty = 1;
 
   if (category.value === "Stamp") {
     const selected = inventory.find(i => i.name === stampType.value);
+    if(!selected) return alert("Please select an item from the list");
     productCost = selected.cost;
     productName = selected.name;
     qty = 1;
     if (selected.quantity > 0) selected.quantity -= 1;
+  } else {
+    productName = document.getElementById("productName").value;
+    qty = Number(document.getElementById("quantity").value) || 1;
+    productCost = Number(document.getElementById("productCost").value);
   }
 
   const record = {
@@ -83,19 +98,20 @@ document.getElementById("salesForm").addEventListener("submit", async (e) => {
   updateDashboard();
   loadInventory();
 
-  // Sync to Google
+  // Send to Google Sheets
   try {
     await fetch(GOOGLE_SHEET_URL, {
       method: "POST",
       mode: "no-cors", 
       body: JSON.stringify(record)
     });
+    console.log("Success: Synced with Cloud");
   } catch (err) {
-    console.log("Cloud sync delayed.");
+    console.log("Sync delayed, saved locally.");
   }
 
   e.target.reset();
-  init(); // Refresh defaults
+  init(); 
 });
 
 // 5. HELPER FUNCTIONS
@@ -120,7 +136,5 @@ function updateDashboard(data = sales) {
   document.getElementById("totalProfit").textContent = p.toLocaleString();
   document.getElementById("totalOrders").textContent = data.length;
 }
-
-// ... (Rest of filtering/printing functions stay the same)
 
 init();
