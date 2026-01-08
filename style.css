@@ -1,0 +1,48 @@
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 30px;
+  background-color: #f4f7f6;
+  color: #333;
+  max-width: 800px;
+  margin: auto;
+}
+
+section {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+h2, h3 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+
+input, select, button {
+  display: block;
+  margin-bottom: 15px;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover { background-color: #219150; }
+
+#inventoryList li {
+  background: #fff;
+  margin-bottom: 5px;
+  padding: 8px;
+  border-left: 4px solid #27ae60;
+  list-style: none;
+}
+
+.low-stock { color: #e74c3c; font-weight: bold; }
