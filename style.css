@@ -1,48 +1,58 @@
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  padding: 30px;
-  background-color: #f4f7f6;
+  font-family: 'Segoe UI', sans-serif;
+  padding: 20px;
+  background-color: #f0f2f5;
   color: #333;
-  max-width: 800px;
+  max-width: 600px;
   margin: auto;
 }
 
 section {
   background: white;
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 20px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
-h2, h3 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+h2 { color: #1a73e8; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+h3 { color: #5f6368; }
 
 input, select, button {
   display: block;
-  margin-bottom: 15px;
-  padding: 10px;
+  margin-bottom: 12px;
+  padding: 12px;
   width: 100%;
+  border-radius: 8px;
+  border: 1px solid #dadce0;
+  font-size: 16px;
   box-sizing: border-box;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 }
 
 button {
-  background-color: #27ae60;
+  background-color: #1a73e8;
   color: white;
   border: none;
-  font-weight: bold;
-  transition: background 0.3s;
+  font-weight: 600;
+  cursor: pointer;
 }
 
-button:hover { background-color: #219150; }
+button:hover { background-color: #1557b0; }
 
+button.secondary { background-color: #70757a; }
+button.export-btn { background-color: #188038; }
+button.print-btn { background-color: #f29900; }
+
+#inventoryList { padding: 0; }
 #inventoryList li {
-  background: #fff;
-  margin-bottom: 5px;
-  padding: 8px;
-  border-left: 4px solid #27ae60;
   list-style: none;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
 }
 
-.low-stock { color: #e74c3c; font-weight: bold; }
+.low-stock-alert {
+  color: #d93025;
+  font-weight: bold;
+}
