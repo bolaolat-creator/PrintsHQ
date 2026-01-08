@@ -4,10 +4,15 @@ const inventory = [
   { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 6500 },
   { name: "Oval 52x37mm", size: "52x37mm", quantity: 27, cost: 6500 },
   { name: "Rectangle 15x80mm", size: "15x80mm", quantity: 20, cost: 6000 },
-  { name: "Rectangle 25x65mm", size: "25x65mm", quantity: 15, cost: 6200 },
-  { name: "Pocket Stamp 20x50mm", size: "20x50mm", quantity: 12, cost: 5500 },
-  { name: "Dater Stamp (Small)", size: "Dater", quantity: 10, cost: 7500 },
-  { name: "Dater Stamp (Large)", size: "Dater", quantity: 5, cost: 9500 }
+  { name: "Rectangle 22x78mm", size: "22x78mm", quantity: 5, cost: 6500 },
+  { name: "Rectangle 33x63mm", size: "33x63mm", quantity: 24, cost: 6500 },
+  { name: "Rectangle 80x100mm", size: "80x100mm", quantity: 49, cost: 15000 },
+  { name: "Rectangle 60x90mm", size: "60x90mm", quantity: 12, cost: 12000 },
+  { name: "Manual Paid/Received Stamp 20x50mm", size: "20x50mm", quantity: 18, cost: 9000 },
+  { name: "Wax Stamp", size: "Wax", quantity: 49, cost: 9000 },
+  { name: "Fabric Ink", size: "10ml", quantity: 50, cost: 5000 },
+  { name: "Nylon Ink", size: "10ml", quantity: 50, cost: 5000 },
+  { name: "Paper Ink", size: "10ml", quantity: 50, cost: 3000 }
 ];
 
 const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxnFPhnMtZ2iJIQfnzBWdwTqHVTqiLmbLnSHe_F9ws3zf8e6C8-f6eYt4FaXs3wbw/exec";
