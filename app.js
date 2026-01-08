@@ -1,4 +1,4 @@
-// 1. YOUR MASTER LIST (Only used if the app is opened for the very first time)
+// 1. MASTER DATA
 const startingInventory = [
   { name: "R23mm", size: "23mm", quantity: 23, cost: 6000 },
   { name: "Round 40/42mm", size: "40/42mm", quantity: 89, cost: 6500 },
@@ -15,207 +15,142 @@ const startingInventory = [
   { name: "Paper Ink", size: "10ml", quantity: 50, cost: 3000 }
 ];
 
-// 2. THE PERMANENT LOAD LOGIC
-// This looks in the browser's "Memory" first.
+// 2. DATA PERSISTENCE (THE FIX)
 let inventory = JSON.parse(localStorage.getItem("currentInventory"));
-
-// If "Memory" is empty (null), ONLY THEN use the startingInventory
-if (!inventory) {
+if (!inventory || inventory.length === 0) {
     inventory = startingInventory;
     localStorage.setItem("currentInventory", JSON.stringify(inventory));
 }
-
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
-const LOW_STOCK_LEVEL = 5;
 
-// UI Elements
-const category = document.getElementById("category");
-const stampSection = document.getElementById("stampSection");
-const otherSection = document.getElementById("otherSection");
-const stampType = document.getElementById("stampType");
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzOOmbZPgmcRdvaPiqCih_J1QBb2jtWkAbg-xdj0PlenDn1nUEjCv5qejtZLfjggQ/exec";
 
-// 2. INITIALIZE PAGE
+// 3. INITIALIZE
 function init() {
-  stampType.innerHTML = '<option value="">-- Select Product --</option>'; 
-  inventory.forEach(item => {
-    const option = document.createElement("option");
-    option.value = item.name;
-    option.textContent = `${item.name} (${item.size})`;
-    stampType.appendChild(option);
-  });
-
-  document.getElementById("date").valueAsDate = new Date();
-  document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
-
-  loadInventory();
-  updateDashboard();
-}
-
-// 3. CATEGORY SWITCHING
-category.addEventListener("change", () => {
-  if (category.value === "Stamp") {
-    stampSection.style.display = "block";
-    otherSection.style.display = "none";
-  } else if (category.value === "Other") {
-    stampSection.style.display = "none";
-    otherSection.style.display = "block";
-  } else {
-    stampSection.style.display = "none";
-    otherSection.style.display = "none";
-  }
-});
-
-// 4. SAVE SALE & SYNC TO GOOGLE
-document.getElementById("salesForm").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const priceCharged = Number(document.getElementById("priceCharged").value);
-  const qtySold = Number(document.getElementById("quantitySold").value);
-  let unitCost = 0;
-  let productName = "";
-
-  if (category.value === "Stamp") {
-    const selected = inventory.find(i => i.name === stampType.value);
-    if(!selected) return alert("Select an item");
-    
-    unitCost = selected.cost;
-    productName = selected.name;
-    selected.quantity -= qtySold; // Reduces stock by the amount sold
-  } else {
-    productName = document.getElementById("productName").value;
-    unitCost = Number(document.getElementById("productCost").value);
-  }
-
-  // CALCULATIONS
-  const totalCost = unitCost * qtySold;
-  const totalProfit = priceCharged - totalCost;
-
-  const record = {
-    client: document.getElementById("client").value,
-    date: document.getElementById("date").value,
-    time: document.getElementById("time").value,
-    category: category.value,
-    product: productName,
-    quantity: qtySold,       // Sending the actual quantity
-    priceCharged: priceCharged, 
-    productCost: totalCost,  // Sending the multiplied cost
-    profit: totalProfit      // Sending the correct profit
-  };
-
-  // Save locally
-  sales.push(record);
-  localStorage.setItem("sales", JSON.stringify(sales));
-  localStorage.setItem("currentInventory", JSON.stringify(inventory));
-  
-  updateDashboard();
-  loadInventory();
-
-  // Sync to Google
-  try {
-    await fetch(GOOGLE_SHEET_URL, { 
-      method: "POST", 
-      mode: "no-cors", 
-      body: JSON.stringify(record) 
+    const stampType = document.getElementById("stampType");
+    stampType.innerHTML = '<option value="">-- Select Product --</option>'; 
+    inventory.forEach(item => {
+        const option = document.createElement("option");
+        option.value = item.name;
+        option.textContent = `${item.name} (${item.size})`;
+        stampType.appendChild(option);
     });
-  } catch (err) { 
-    console.log("Cloud sync error"); 
-  }
 
-  e.target.reset();
-  init(); 
+    document.getElementById("date").valueAsDate = new Date();
+    document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
+
+    loadInventory();
+    updateDashboard();
+}
+
+// 4. CATEGORY TOGGLE
+document.getElementById("category").addEventListener("change", (e) => {
+    document.getElementById("stampSection").style.display = e.target.value === "Stamp" ? "block" : "none";
+    document.getElementById("otherSection").style.display = e.target.value === "Other" ? "block" : "none";
 });
 
-// 5. DASHBOARD & FILTERING
-function updateDashboard(data = sales) {
-  let s = 0, p = 0;
-  data.forEach(sale => { s += sale.priceCharged; p += sale.profit; });
-  document.getElementById("totalSales").textContent = s.toLocaleString();
-  document.getElementById("totalProfit").textContent = p.toLocaleString();
-  document.getElementById("totalOrders").textContent = data.length;
-}
+// 5. RESTOCK FUNCTION (Defined globally so HTML can see it)
+window.restockItem = function(index) {
+    const amount = prompt(`Add stock for ${inventory[index].name}:`);
+    if (amount !== null && amount !== "" && !isNaN(amount)) {
+        inventory[index].quantity += parseInt(amount);
+        localStorage.setItem("currentInventory", JSON.stringify(inventory));
+        loadInventory();
+        alert("Stock updated!");
+    }
+};
 
-function filterByDate() {
-  const d = document.getElementById("filterDate").value;
-  if (!d) return;
-  const filtered = sales.filter(s => s.date === d);
-  updateDashboard(filtered);
-}
+// 6. SALES SUBMISSION
+document.getElementById("salesForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-function clearFilter() {
-  updateDashboard(sales);
-}
+    const priceCharged = Number(document.getElementById("priceCharged").value);
+    const qtySold = Number(document.getElementById("quantitySold").value);
+    const categoryValue = document.getElementById("category").value;
+    let unitCost = 0;
+    let productName = "";
 
-// 6. MONTHLY SUMMARY LOGIC
-function monthlySummary() {
-  const month = document.getElementById("monthPicker").value;
-  if (!month) return alert("Please select a month");
-  
-  const filtered = sales.filter(s => s.date.startsWith(month));
-  let mSales = 0, mProfit = 0;
-  
-  filtered.forEach(f => { 
-    mSales += f.priceCharged; 
-    mProfit += f.profit; 
-  });
-  
-  document.getElementById("monthlySales").textContent = mSales.toLocaleString();
-  document.getElementById("monthlyProfit").textContent = mProfit.toLocaleString();
-}
+    if (categoryValue === "Stamp") {
+        const stampName = document.getElementById("stampType").value;
+        const selected = inventory.find(i => i.name === stampName);
+        if(!selected) return alert("Select an item");
+        unitCost = selected.cost;
+        productName = selected.name;
+        selected.quantity -= qtySold;
+    } else {
+        productName = document.getElementById("productName").value;
+        unitCost = Number(document.getElementById("productCost").value);
+    }
 
-// 7. PRINTABLE PDF LOGIC
-function printDailyReport() {
-  const date = document.getElementById("printDate").value;
-  if (!date) return alert("Select a date to print");
-  
-  const filtered = sales.filter(s => s.date === date);
-  if (filtered.length === 0) return alert("No sales found for this date");
+    const totalCost = unitCost * qtySold;
+    const record = {
+        client: document.getElementById("client").value,
+        date: document.getElementById("date").value,
+        time: document.getElementById("time").value,
+        category: categoryValue,
+        product: productName,
+        quantity: qtySold,
+        priceCharged: priceCharged,
+        productCost: totalCost,
+        profit: priceCharged - totalCost
+    };
 
-  let rows = filtered.map(s => `
-    <tr>
-      <td style="padding:8px; border:1px solid #ddd;">${s.client}</td>
-      <td style="padding:8px; border:1px solid #ddd;">${s.product}</td>
-      <td style="padding:8px; border:1px solid #ddd;">₦${s.priceCharged.toLocaleString()}</td>
-      <td style="padding:8px; border:1px solid #ddd;">₦${s.profit.toLocaleString()}</td>
-    </tr>
-  `).join("");
+    sales.push(record);
+    localStorage.setItem("sales", JSON.stringify(sales));
+    localStorage.setItem("currentInventory", JSON.stringify(inventory));
+    
+    updateDashboard();
+    loadInventory();
 
-  const win = window.open("", "_blank");
-  win.document.write(`
-    <html>
-      <head><title>Report - ${date}</title></head>
-      <body style="font-family:sans-serif; padding:20px;">
-        <h2 style="text-align:center;">Daily Sales Report: ${date}</h2>
-        <table style="width:100%; border-collapse: collapse; margin-top:20px;">
-          <thead>
-            <tr style="background:#f2f2f2;">
-              <th style="padding:8px; border:1px solid #ddd;">Client</th>
-              <th style="padding:8px; border:1px solid #ddd;">Product</th>
-              <th style="padding:8px; border:1px solid #ddd;">Price</th>
-              <th style="padding:8px; border:1px solid #ddd;">Profit</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </body>
-    </html>
-  `);
-  win.document.close();
-  win.print();
-}
+    try {
+        await fetch(GOOGLE_SHEET_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(record) });
+    } catch (err) { console.error("Cloud sync failed"); }
 
-// 8. INVENTORY UI
+    e.target.reset();
+    init();
+});
+
+// 7. UI UPDATES
 function loadInventory() {
-  const list = document.getElementById("inventoryList");
-  list.innerHTML = "";
-  inventory.forEach(item => {
-    const li = document.createElement("li");
-    const isLow = item.quantity <= LOW_STOCK_LEVEL;
-    li.innerHTML = `
-      <span><strong>${item.name}</strong> <small>(${item.size})</small></span>
-      <span class="${isLow ? 'low-stock-alert' : ''}">Stock: ${item.quantity} ${isLow ? '⚠' : ''}</span>
-    `;
-    list.appendChild(li);
-  });
+    const list = document.getElementById("inventoryList");
+    list.innerHTML = "";
+    inventory.forEach((item, index) => {
+        const isLow = item.quantity <= 5;
+        const li = document.createElement("li");
+        li.innerHTML = `
+            <div style="flex: 1;">
+                <strong>${item.name}</strong><br>
+                <span class="${isLow ? 'low-stock-alert' : ''}">Stock: ${item.quantity}</span>
+            </div>
+            <button onclick="window.restockItem(${index})" style="width: auto; background: #007bff; color: white; padding: 5px 10px;">+ Restock</button>
+        `;
+        list.appendChild(li);
+    });
 }
+
+function updateDashboard(data = sales) {
+    let s = 0, p = 0;
+    data.forEach(sale => { s += sale.priceCharged; p += sale.profit; });
+    document.getElementById("totalSales").textContent = s.toLocaleString();
+    document.getElementById("totalProfit").textContent = p.toLocaleString();
+    document.getElementById("totalOrders").textContent = data.length;
+}
+
+// 8. GLOBAL HELPERS
+window.filterByDate = function() {
+    const d = document.getElementById("filterDate").value;
+    updateDashboard(sales.filter(s => s.date === d));
+};
+
+window.clearFilter = function() { updateDashboard(sales); };
+
+window.monthlySummary = function() {
+    const m = document.getElementById("monthPicker").value;
+    const filtered = sales.filter(s => s.date.startsWith(m));
+    let ms = 0, mp = 0;
+    filtered.forEach(f => { ms += f.priceCharged; mp += f.profit; });
+    document.getElementById("monthlySales").textContent = ms.toLocaleString();
+    document.getElementById("monthlyProfit").textContent = mp.toLocaleString();
+};
 
 init();
