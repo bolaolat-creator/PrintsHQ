@@ -61,22 +61,25 @@ document.getElementById("salesForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const priceCharged = Number(document.getElementById("priceCharged").value);
-  let productCost = 0;
+  const qtySold = Number(document.getElementById("quantitySold").value);
+  let unitCost = 0;
   let productName = "";
-  let qty = 1;
 
   if (category.value === "Stamp") {
     const selected = inventory.find(i => i.name === stampType.value);
-    if(!selected) return alert("Please select an item from the list");
-    productCost = selected.cost;
+    if(!selected) return alert("Select an item");
+    
+    unitCost = selected.cost;
     productName = selected.name;
-    qty = 1;
-    if (selected.quantity > 0) selected.quantity -= 1;
+    selected.quantity -= qtySold; // Reduces stock by the amount sold
   } else {
     productName = document.getElementById("productName").value;
-    qty = Number(document.getElementById("quantity").value) || 1;
-    productCost = Number(document.getElementById("productCost").value);
+    unitCost = Number(document.getElementById("productCost").value);
   }
+
+  // CALCULATIONS
+  const totalCost = unitCost * qtySold;
+  const totalProfit = priceCharged - totalCost;
 
   const record = {
     client: document.getElementById("client").value,
@@ -84,27 +87,29 @@ document.getElementById("salesForm").addEventListener("submit", async (e) => {
     time: document.getElementById("time").value,
     category: category.value,
     product: productName,
-    quantity: qty,
-    priceCharged: priceCharged,
-    productCost: productCost,
-    profit: priceCharged - productCost
+    quantity: qtySold,       // Sending the actual quantity
+    priceCharged: priceCharged, 
+    productCost: totalCost,  // Sending the multiplied cost
+    profit: totalProfit      // Sending the correct profit
   };
 
+  // Save locally
   sales.push(record);
   localStorage.setItem("sales", JSON.stringify(sales));
+  localStorage.setItem("currentInventory", JSON.stringify(inventory));
   
   updateDashboard();
   loadInventory();
 
-  // Send to Google Sheets
+  // Sync to Google
   try {
-    await fetch(GOOGLE_SHEET_URL, {
-      method: "POST",
+    await fetch(GOOGLE_SHEET_URL, { 
+      method: "POST", 
       mode: "no-cors", 
-      body: JSON.stringify(record)
+      body: JSON.stringify(record) 
     });
-  } catch (err) {
-    console.log("Sheet sync delayed.");
+  } catch (err) { 
+    console.log("Cloud sync error"); 
   }
 
   e.target.reset();
