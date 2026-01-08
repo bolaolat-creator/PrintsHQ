@@ -15,7 +15,7 @@ const inventory = [
   { name: "Paper Ink", size: "10ml", quantity: 50, cost: 500 }
 ];
 
-const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxnFPhnMtZ2iJIQfnzBWdwTqHVTqiLmbLnSHe_F9ws3zf8e6C8-f6eYt4FaXs3wbw/exec";
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbzOOmbZPgmcRdvaPiqCih_J1QBb2jtWkAbg-xdj0PlenDn1nUEjCv5qejtZLfjggQ/exec";
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 const LOW_STOCK_LEVEL = 5;
 
