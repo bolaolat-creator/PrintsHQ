@@ -6,40 +6,44 @@ const inventory = [
   { name: "Rectangle 15x80mm", size: "15x80mm", quantity: 20, cost: 6000 }
 ];
 
+const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbxnFPhnMtZ2iJIQfnzBWdwTqHVTqiLmbLnSHe_F9ws3zf8e6C8-f6eYt4FaXs3wbw/exec";
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 const LOW_STOCK_LEVEL = 5;
 
-// 2. INITIALIZE PAGE
+// UI Elements
 const category = document.getElementById("category");
 const stampSection = document.getElementById("stampSection");
 const otherSection = document.getElementById("otherSection");
 const stampType = document.getElementById("stampType");
 
-// Populate Stamp Dropdown
-inventory.forEach(item => {
-  const option = document.createElement("option");
-  option.value = item.name;
-  option.textContent = item.name;
-  stampType.appendChild(option);
-});
+// 2. INITIALIZE PAGE
+function init() {
+  inventory.forEach(item => {
+    const option = document.createElement("option");
+    option.value = item.name;
+    option.textContent = item.name;
+    stampType.appendChild(option);
+  });
 
-// Set default date/time
-document.getElementById("date").valueAsDate = new Date();
-document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
+  document.getElementById("date").valueAsDate = new Date();
+  document.getElementById("time").value = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', hour12: false});
 
-// 3. EVENT LISTENERS
+  loadInventory();
+  updateDashboard();
+}
+
+// 3. CATEGORY SWITCHING
 category.addEventListener("change", () => {
   stampSection.style.display = category.value === "Stamp" ? "block" : "none";
   otherSection.style.display = category.value === "Other" ? "block" : "none";
 });
 
-document.getElementById("salesForm").addEventListener("submit", e => {
+// 4. SAVE SALE & SYNC TO GOOGLE
+document.getElementById("salesForm").addEventListener("submit", async (e) => {
   e.preventDefault();
 
   const priceCharged = Number(document.getElementById("priceCharged").value);
   let productCost = Number(document.getElementById("productCost").value);
-  
-  // Logic for Stamps: Auto-cost and Inventory Reduce
   let productName = document.getElementById("productName").value;
   let qty = Number(document.getElementById("quantity").value) || 1;
 
@@ -47,7 +51,7 @@ document.getElementById("salesForm").addEventListener("submit", e => {
     const selected = inventory.find(i => i.name === stampType.value);
     productCost = selected.cost;
     productName = selected.name;
-    qty = 1; // Standard for stamps
+    qty = 1;
     if (selected.quantity > 0) selected.quantity -= 1;
   }
 
@@ -58,22 +62,39 @@ document.getElementById("salesForm").addEventListener("submit", e => {
     category: category.value,
     product: productName,
     quantity: qty,
-    priceCharged,
-    productCost,
+    priceCharged: priceCharged,
+    productCost: productCost,
     profit: priceCharged - productCost
   };
 
+  // Save Locally
   sales.push(record);
   localStorage.setItem("sales", JSON.stringify(sales));
   
+  // Update UI
   updateDashboard();
   loadInventory();
-  dailyAutoBackup(); // Checks and triggers backup
+
+  // Send to Google Sheets
+  try {
+    await fetch(GOOGLE_SHEET_URL, {
+      method: "POST",
+      mode: "no-cors", 
+      cache: "no-cache",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(record)
+    });
+    console.log("Synced with Google Sheets");
+  } catch (err) {
+    console.error("Cloud sync failed, saved locally only.", err);
+  }
+
+  // Reset Form
   e.target.reset();
   document.getElementById("date").valueAsDate = new Date();
 });
 
-// 4. CORE FUNCTIONS
+// 5. DASHBOARD & INVENTORY HELPERS
 function updateDashboard(data = sales) {
   let totalSales = 0, totalProfit = 0;
   data.forEach(sale => {
@@ -92,36 +113,14 @@ function loadInventory() {
     const li = document.createElement("li");
     const isLow = item.quantity <= LOW_STOCK_LEVEL;
     li.innerHTML = `
-      <span>${item.name} (${item.size})</span>
+      <span>${item.name}</span>
       <span class="${isLow ? 'low-stock-alert' : ''}">Qty: ${item.quantity} ${isLow ? '⚠' : ''}</span>
     `;
     list.appendChild(li);
   });
 }
 
-// 5. BACKUP & EXPORT
-function dailyAutoBackup() {
-  const today = new Date().toISOString().split('T')[0];
-  if (localStorage.getItem("lastBackupDate") === today) return;
-
-  exportToExcel(`backup_${today}.csv`);
-  localStorage.setItem("lastBackupDate", today);
-}
-
-function exportToExcel(fileName = "sales_report.csv") {
-  let csv = "Client,Date,Time,Category,Product,Quantity,Price,Cost,Profit\n";
-  sales.forEach(s => {
-    csv += `${s.client},${s.date},${s.time},${s.category},${s.product},${s.quantity},${s.priceCharged},${s.productCost},${s.profit}\n`;
-  });
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = fileName;
-  a.click();
-}
-
-// 6. FILTERING & REPORTS
+// 6. EXTRA FEATURES (Monthly & Print)
 function filterByDate() {
   const d = document.getElementById("filterDate").value;
   updateDashboard(sales.filter(s => s.date === d));
@@ -143,18 +142,9 @@ function printDailyReport() {
   const date = document.getElementById("printDate").value;
   const filtered = sales.filter(s => s.date === date);
   let rows = filtered.map(s => `<tr><td>${s.client}</td><td>${s.product}</td><td>₦${s.priceCharged}</td><td>₦${s.profit}</td></tr>`).join("");
-  
   const win = window.open("", "_blank");
-  win.document.write(`
-    <h2>Report for ${date}</h2>
-    <table border="1" width="100%" style="border-collapse:collapse">
-      <thead><tr><th>Client</th><th>Product</th><th>Price</th><th>Profit</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-  `);
+  win.document.write(`<h2>Report: ${date}</h2><table border="1" width="100%">${rows}</table>`);
   win.print();
 }
 
-// Init
-loadInventory();
-updateDashboard();
+init();
